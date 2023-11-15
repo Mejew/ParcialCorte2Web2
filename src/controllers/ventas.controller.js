@@ -1,5 +1,5 @@
 import { connection } from "../db.js";
-import cookieParser from "cookie-parser";
+import jwt from "jsonwebtoken";
 
 export const getVentas = async (req, res) => {
   connection.query("SELECT * FROM ventas", (error, rows) => {

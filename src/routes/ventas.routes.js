@@ -6,7 +6,6 @@ import {
   getVenta,
   getVentas,
 } from "../controllers/ventas.controller.js";
-
 const router = Router();
 router.get("/sales", getVentas);
 router.get("/sales/:codigo", getVenta);

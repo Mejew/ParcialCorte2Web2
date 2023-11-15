@@ -1,10 +1,8 @@
 import { connection } from "../db.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import cookieParser from "cookie-parser";
 
 const saltRounds = 10;
-const secretKey = "123456789";
 
 export const getuser = async (req, res) => {
   connection.query("SELECT * FROM usuarios", (error, rows) => {
@@ -72,26 +70,29 @@ export const registerUser = (req, res) => {
     }
   );
 };
-
 export const loginUser = (req, res) => {
   const { username, password } = req.body;
 
-  // Busca el usuario en la base de datos
+  if (!username || !password) {
+    return res.status(400).json({
+      mensaje: "Debe completar los campos",
+    });
+  }
+
   connection.query(
     "SELECT * FROM usuarios WHERE username = ?",
     [username],
     (error, rows) => {
       if (error) {
-        console.error(error);
         return res.status(500).json({
           estado: false,
           msg: "Comuníquese con el administrador",
         });
       }
 
-      if (rows.length <= 0) {
-        return res.status(400).json({
-          msg: "Usuario no encontrado",
+      if (rows.length === 0) {
+        return res.status(401).json({
+          mensaje: "Usuario o contraseña incorrectos",
         });
       }
 
@@ -101,29 +102,146 @@ export const loginUser = (req, res) => {
           console.error(err);
           return res.status(500).json({
             estado: false,
-            msg: "Comuníquese con el administrador",
+            msg: "Error al comparar contraseñas. Comuníquese con el administrador",
           });
         }
 
-        // Genera y firma el token JWT
-        let tokenPayload = { username: rows[0].username, esAdm: rows[0].esAdm };
-        const token = jwt.sign(tokenPayload, secretKey, { expiresIn: "1h" });
-        res.cookie("token", token, { httpOnly: true });
+        if (result) {
+          const user = {
+            id: rows[0].id,
+            username: rows[0].username,
+            esAdm: rows[0].esAdm,
+          };
 
-        if (rows[0].esAdm) {
-          res.json({
-            msg: "Inicio de sesión exitoso como administrador",
-            token,
-            isAdmin: true,
-          });
+          jwt.sign(
+            { user },
+            "secretkey",
+            { expiresIn: "1h" },
+            (error, token) => {
+              if (error) {
+                console.error(error);
+                return res.status(500).json({
+                  estado: false,
+                  msg: "Error al generar el token. Comuníquese con el administrador",
+                });
+              }
+
+              res.cookie("token", token, { httpOnly: true, maxAge: 120000 }); // Almacena el token en la cookie
+
+              if (user.esAdm) {
+                res.json({
+                  mensaje: "Inicio de sesión exitoso como administrador",
+                  isAdmin: true,
+                  token,
+                });
+              } else {
+                res.json({
+                  mensaje: "Inicio de sesión exitoso como asesor",
+                  isAdmin: false,
+                  token,
+                });
+              }
+            }
+          );
         } else {
-          res.json({
-            msg: "Inicio de sesión exitoso como asesor",
-            token,
-            isAdmin: false,
+          res.status(401).json({
+            mensaje: "Usuario o contraseña incorrectos",
           });
         }
       });
     }
   );
 };
+export const protectedRoute = (req, res) => {
+  jwt.verify(req.token, "secretkey", (error, authData) => {
+    if (error) {
+      res.sendStatus(403);
+    } else {
+      res.json({
+        message: "Ruta protegida",
+        authData,
+      });
+    }
+  });
+};
+
+export const verifyToken = (req, res, next) => {
+  const bearerHeader = req.headers["authorization"];
+  if (typeof bearerHeader !== "undefined") {
+    const bearerToken = bearerHeader.split(" ")[1];
+    req.token = bearerToken;
+    next();
+  } else {
+    res.sendStatus(403);
+  }
+};
+
+// export const loginUser = (req, res) => {
+//   const { username, password } = req.body;
+
+//   if (username === undefined || password === undefined) {
+//     return res.status(400).json({
+//       mensaje: "Debe completar los campos",
+//     });
+//   }
+//   connection.query(
+//     "SELECT * FROM usuarios WHERE username = ?",
+//     [username],
+//     (error, rows) => {
+//       if (error) {
+//         console.error(error);
+//         return res.status(500).json({
+//           estado: false,
+//           msg: "Comuníquese con el administrador",
+//         });
+//       }
+
+//       if (rows.length <= 0) {
+//         return res.status(401).json({
+//           mensaje: "Usuario o contraseña incorrectos",
+//         });
+//       }
+
+//       // Compara la contraseña ingresada con la almacenada
+//       bcrypt.compare(password, rows[0].password, (err, result) => {
+//         if (err) {
+//           console.error(err);
+//           return res.status(500).json({
+//             estado: false,
+//             msg: "Error al comparar contraseñas. Comuníquese con el administrador",
+//           });
+//         }
+
+//         if (result) {
+//           // Genera y firma el token JWT
+//           let tokenPayload = {
+//             username: rows[0].username,
+//             esAdm: rows[0].esAdm,
+//           };
+//           const token = jwt.sign(tokenPayload, "secretKey", {
+//             expiresIn: "1h",
+//           });
+//           res.cookie("token", token, { httpOnly: true });
+
+//           if (rows[0].esAdm) {
+//             res.json({
+//               msg: "Inicio de sesión exitoso como administrador",
+//               token,
+//               isAdmin: true,
+//             });
+//           } else {
+//             res.json({
+//               msg: "Inicio de sesión exitoso como asesor",
+//               token,
+//               isAdmin: false,
+//             });
+//           }
+//         } else {
+//           res.status(401).json({
+//             mensaje: "Usuario o contraseña incorrectos",
+//           });
+//         }
+//       });
+//     }
+//   );
+// };

@@ -1,5 +1,4 @@
 import { connection } from "../db.js";
-
 export const getProductos = async (req, res) => {
   connection.query("SELECT * FROM productos", (error, rows) => {
     if (error) {
@@ -13,6 +12,7 @@ export const getProductos = async (req, res) => {
     }
   });
 };
+
 export const getProducto = async (req, res) => {
   const codigo = req.params.codigo;
   connection.query(

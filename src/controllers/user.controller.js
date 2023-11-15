@@ -170,7 +170,17 @@ export const verifyToken = (req, res, next) => {
   if (typeof bearerHeader !== "undefined") {
     const bearerToken = bearerHeader.split(" ")[1];
     req.token = bearerToken;
-    next();
+
+    jwt.verify(req.token, "secretkey", (error, authData) => {
+      if (error) {
+        console.error("Error al verificar el token:", error);
+        res.sendStatus(403);
+      } else {
+        req.user = authData.user; // Añade el usuario autenticado a la solicitud
+        console.log("Usuario autenticado:", req.user);
+        next();
+      }
+    });
   } else {
     res.sendStatus(403);
   }

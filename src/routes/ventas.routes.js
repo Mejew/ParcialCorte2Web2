@@ -1,16 +1,17 @@
 import { Router } from "express";
 import {
   actualizarVentas,
-  crarVentas,
+  crearVentas,
   eliminarVentas,
   getVenta,
   getVentas,
 } from "../controllers/ventas.controller.js";
+import { verifyToken } from "../controllers/user.controller.js";
 const router = Router();
-router.get("/sales", getVentas);
-router.get("/sales/:codigo", getVenta);
-router.post("/sales", crarVentas);
-router.patch("/sales/:codigo", actualizarVentas);
-router.delete("/sales/:codigo", eliminarVentas);
+router.get("/sales", verifyToken, getVentas);
+router.get("/sales/:codigo", verifyToken, getVenta);
+router.post("/sales", verifyToken, crearVentas);
+router.patch("/sales/:codigo", verifyToken, actualizarVentas);
+router.delete("/sales/:codigo", verifyToken, eliminarVentas);
 
 export default router;

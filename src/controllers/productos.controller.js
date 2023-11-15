@@ -111,7 +111,7 @@ export const eliminarProducto = async (req, res) => {
     (error, results) => {
       if (results.affectedRows <= 0) {
         return res.status(400).json({
-          msg: "Usuario no encontrado",
+          msg: "Producto no encontrado",
         });
       } else if (error) {
         console.error(error);

@@ -1,4 +1,5 @@
 import { connection } from "../db.js";
+import cookieParser from "cookie-parser";
 
 export const getVentas = async (req, res) => {
   connection.query("SELECT * FROM ventas", (error, rows) => {
@@ -13,6 +14,7 @@ export const getVentas = async (req, res) => {
     }
   });
 };
+
 export const getVenta = async (req, res) => {
   const codigo = req.params.codigo;
   connection.query(
@@ -143,7 +145,7 @@ export const eliminarVentas = async (req, res) => {
     (error, results) => {
       if (results.affectedRows <= 0) {
         return res.status(400).json({
-          msg: "Usuario no encontrado",
+          msg: "Venta no encontrada",
         });
       } else if (error) {
         console.error(error);

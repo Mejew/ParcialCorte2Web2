@@ -1,6 +1,5 @@
 import { connection } from "../db.js";
 export const getProductos = async (req, res) => {
-  // Verificación de autorización
   if (req.user && req.user.esAdm === 1) {
     connection.query("SELECT * FROM productos", (error, rows) => {
       if (error) {
@@ -57,11 +56,12 @@ export const getProducto = async (req, res) => {
 
 export const crearProducto = async (req, res) => {
   console.log(req.body);
-  const { nombre, descripcion, precio, cantidad_en_stock } = req.body;
+  const { nombre, descripcion, precio, cantidad_en_stock, imagen_url } =
+    req.body;
   if (req.user && req.user.esAdm === 1) {
     connection.query(
-      "INSERT INTO productos(nombre, descripcion, precio, cantidad_en_stock) VALUES (?, ?, ?, ?)",
-      [nombre, descripcion, precio, cantidad_en_stock],
+      "INSERT INTO productos(nombre, descripcion, precio, cantidad_en_stock, imagen_url) VALUES (?, ?, ?, ?, ?)",
+      [nombre, descripcion, precio, cantidad_en_stock, imagen_url],
       (error, results) => {
         if (error) {
           console.error(error);
@@ -79,6 +79,7 @@ export const crearProducto = async (req, res) => {
             descripcion,
             precio,
             cantidad_en_stock,
+            imagen_url,
           });
         }
       }
@@ -92,13 +93,15 @@ export const crearProducto = async (req, res) => {
     });
   }
 };
+
 export const actualizarProducto = async (req, res) => {
   const codigo = req.params.codigo;
-  const { nombre, descripcion, precio, cantidad_en_stock } = req.body;
+  const { nombre, descripcion, precio, cantidad_en_stock, imagen_url } =
+    req.body;
   if (req.user && req.user.esAdm === 1) {
     connection.query(
-      "UPDATE productos SET nombre=IFNULL(?,nombre), descripcion=IFNULL(?,descripcion), precio=IFNULL(?,precio),cantidad_en_stock=IFNULL(?,cantidad_en_stock) WHERE codigo=?",
-      [nombre, descripcion, precio, cantidad_en_stock, codigo],
+      "UPDATE productos SET nombre=IFNULL(?,nombre), descripcion=IFNULL(?,descripcion), precio=IFNULL(?,precio), cantidad_en_stock=IFNULL(?,cantidad_en_stock), imagen_url=IFNULL(?,imagen_url) WHERE codigo=?",
+      [nombre, descripcion, precio, cantidad_en_stock, imagen_url, codigo],
       (error, results) => {
         if (error) {
           console.error(error);

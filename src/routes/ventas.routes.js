@@ -6,7 +6,7 @@ import {
   getVenta,
   getVentas,
 } from "../controllers/ventas.controller.js";
-import { verifyToken } from "../controllers/user.controller.js";
+import { verifyToken } from "../middleware/verifyToken.js";
 const router = Router();
 router.get("/sales", verifyToken, getVentas);
 router.get("/sales/:codigo", verifyToken, getVenta);

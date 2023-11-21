@@ -19,7 +19,7 @@ export const getuser = async (req, res) => {
 };
 
 export const registerUser = (req, res) => {
-  const { username, password, esAdm } = req.body;
+  const { username, password, esAdm, nombre } = req.body;
 
   // Verifica si el usuario ya existe
   connection.query(
@@ -52,8 +52,8 @@ export const registerUser = (req, res) => {
 
         // Inserta el nuevo usuario en la base de datos
         connection.query(
-          "INSERT INTO usuarios(username, password, esAdm) VALUES (?, ?, ?)",
-          [username, hashedPassword, esAdm],
+          "INSERT INTO usuarios(username, password, esAdm, nombre) VALUES (?, ?, ?, ?)",
+          [username, hashedPassword, esAdm, nombre],
           (error, results) => {
             if (error) {
               console.error(error);
@@ -163,25 +163,4 @@ export const protectedRoute = (req, res) => {
       });
     }
   });
-};
-
-export const verifyToken = (req, res, next) => {
-  const bearerHeader = req.headers["authorization"];
-  if (typeof bearerHeader !== "undefined") {
-    const bearerToken = bearerHeader.split(" ")[1];
-    req.token = bearerToken;
-
-    jwt.verify(req.token, "secretkey", (error, authData) => {
-      if (error) {
-        console.error("Error al verificar el token:", error);
-        res.sendStatus(403);
-      } else {
-        req.user = authData.user; // Añade el usuario autenticado a la solicitud
-        console.log("Usuario autenticado:", req.user);
-        next();
-      }
-    });
-  } else {
-    res.sendStatus(403);
-  }
 };

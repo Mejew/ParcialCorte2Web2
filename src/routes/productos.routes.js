@@ -6,7 +6,7 @@ import {
   getProducto,
   getProductos,
 } from "../controllers/productos.controller.js";
-import { verifyToken } from "../controllers/user.controller.js";
+import { verifyToken } from "../middleware/verifyToken.js";
 const router = Router();
 
 router.get("/products", verifyToken, getProductos);

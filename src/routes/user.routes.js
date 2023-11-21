@@ -4,8 +4,8 @@ import {
   loginUser,
   protectedRoute,
   registerUser,
-  verifyToken,
 } from "../controllers/user.controller.js";
+import { verifyToken } from "../middleware/verifyToken.js";
 
 const router = Router();
 

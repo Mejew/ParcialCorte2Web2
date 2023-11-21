@@ -16,7 +16,5 @@ app.use((req, res, next) => {
     message: "Endpoint not found",
   });
 });
-app.get("/", (req, res) => {
-  res.send("hola desde expres");
-});
+
 export default app;

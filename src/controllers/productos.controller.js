@@ -1,6 +1,5 @@
 import { connection } from "../db.js";
 export const getProductos = async (req, res) => {
-  if (req.user && req.user.esAdm === 1) {
     connection.query("SELECT * FROM productos", (error, rows) => {
       if (error) {
         console.error(error);
@@ -12,19 +11,12 @@ export const getProductos = async (req, res) => {
         res.send(rows);
       }
     });
-  } else {
-    console.log("Acceso no autorizado");
 
-    res.status(403).json({
-      estado: false,
-      msg: "Acceso no autorizado",
-    });
-  }
 };
 
 export const getProducto = async (req, res) => {
   const codigo = req.params.codigo;
-  if (req.user && req.user.esAdm === 1) {
+  if (req.user && (req.user.esAdm === 1 | req.user.esAdm === 0)) {
     connection.query(
       "SELECT * FROM productos WHERE codigo =?",
       [codigo],
@@ -84,12 +76,13 @@ export const crearProducto = async (req, res) => {
         }
       }
     );
+    console.log("producto agregado");
   } else {
     console.log("Acceso no autorizado");
 
     res.status(403).json({
       estado: false,
-      msg: "Acceso no autorizado",
+      msg: "Acceso no autorizado para crear producto",
     });
   }
 };

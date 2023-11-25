@@ -9,7 +9,7 @@ import {
 import { verifyToken } from "../middleware/verifyToken.js";
 const router = Router();
 
-router.get("/products", verifyToken, getProductos);
+router.get("/products", getProductos);
 router.get("/products/:codigo", verifyToken, getProducto);
 router.post("/products", verifyToken, crearProducto);
 router.patch("/products/:codigo", verifyToken, actualizarProducto);
